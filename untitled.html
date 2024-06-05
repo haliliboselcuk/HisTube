@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koyu Temalı Chatbot</title>
+    <style>
+        body {
+            background-color: #222;
+            color: #eee;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #333;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            width: 600px;
+            max-width: 90%;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #444;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .user-message {
+            background-color: #eee;
+            color: #222;
+            text-align: right;
+        }
+
+        .bot-message {
+            background-color: #666;
+            color: #eee;
+        }
+
+        .input-area {
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #444;
+            color: #eee;
+            margin-right: 10px;
+        }
+
+        button {
+            background-color: #666;
+            color: #eee;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Koyu Temalı Chatbot</h1>
+        <div class="chat-box" id="chat-box">
+            <!-- Mesajlar buraya eklenecek -->
+        </div>
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Mesajınızı yazın...">
+            <button id="send-button">Gönder</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import @google/generative-ai
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+        // API Key'inizi buraya ekleyin
+        const API_KEY = "AIzaSyDNxJgUOo155lZzhI7BPKsFdLDZDAPiFSA";
+
+        // Yeni bir GoogleGenerativeAI nesnesi oluşturun
+        const genAI = new GoogleGenerativeAI(API_KEY);
+
+        // Gemini 1.5 Flash modelini kullanın
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        // Mesaj gönderme fonksiyonu
+        async function sendMessage() {
+            const messageInput = document.getElementById("message-input");
+            const message = messageInput.value;
+
+            // Mesajı kullanıcı mesajı olarak ekleyin
+            addChatMessage(message, "user-message");
+
+            // Model ile iletişim kurun
+            const response = await model.generateContent(message);
+            const text = response.text();
+
+            // Mesajı bot mesajı olarak ekleyin
+            addChatMessage(text, "bot-message");
+
+            // Giriş alanını temizleyin
+            messageInput.value = "";
+        }
+
+        // Chat kutusuna mesaj ekleme fonksiyonu
+        function addChatMessage(message, className) {
+            const chatBox = document.getElementById("chat-box");
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message", className);
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+
+            // Chat kutusunu en alttaki mesaja kaydırın
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Gönder butonuna tıklama olayı
+        const sendButton = document.getElementById("send-button");
+        sendButton.addEventListener("click", sendMessage);
+
+        // Enter tuşuna basıldığında mesaj gönderme
+        const messageInput = document.getElementById("message-input");
+        messageInput.addEventListener("keyup", (event) => {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
